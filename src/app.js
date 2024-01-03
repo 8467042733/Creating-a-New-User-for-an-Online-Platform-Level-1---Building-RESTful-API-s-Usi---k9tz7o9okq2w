@@ -11,6 +11,32 @@ const userDetails = JSON.parse(
 app.use(express.json());
 
 // Write POST endpoint for registering new user
+app.post("/api/v1/details", (req, res) => {
+  const { name, mail, number } = req.body;
+  if (!name || !mail || !number) {
+    return res.status(400).json({
+      status: "failed",
+      message: "Invalid user data. Please provide name, mail, and number.",
+    });
+  }
+
+  const newId = userDetails.length === 0 ? 1 : userDetails[userDetails.length - 1].id + 1;
+  const newUser = {
+    id: newId,
+    name,
+    mail,
+    number,
+  };
+  userDetails.push(newUser);
+  fs.writeFileSync(`${__dirname}/data/userDetails.json`, JSON.stringify(userDetails));
+  res.status(201).json({
+    status: "success",
+    message: "User registered successfully",
+    data: {
+      newUser,
+    },
+  });
+});
 
 // GET endpoint for sending the details of users
 app.get("/api/v1/details", (req, res) => {
